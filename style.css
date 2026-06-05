@@ -150,3 +150,153 @@ kbd {
 #restart-btn:hover {
   background: #9bbdff;
 }
+
+.start-title {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: #7aa2f7;
+}
+
+/* ---- Tabla de records ---- */
+.records {
+  width: 260px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  color: #e0e0e0;
+}
+
+.records-title {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #555570;
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.records-empty {
+  font-size: 12px;
+  color: #888;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.records-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.records-table td {
+  padding: 3px 6px;
+}
+
+.records-table .rank {
+  color: #555570;
+  width: 20px;
+}
+
+.records-table .rname {
+  text-align: left;
+  color: #aaa;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 110px;
+  white-space: nowrap;
+}
+
+.records-table .rscore {
+  text-align: right;
+  color: #7aa2f7;
+  font-weight: 700;
+}
+
+.records-table tr.highlight td {
+  background: rgba(122, 162, 247, 0.18);
+  color: #fff;
+}
+
+.records-table tr.highlight .rscore {
+  color: #9bbdff;
+}
+
+.records-stats {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 10px;
+  font-size: 12px;
+  color: #888;
+}
+
+.records-stats b {
+  color: #7aa2f7;
+}
+
+#reset-records-btn {
+  margin-top: 10px;
+  background: transparent;
+  color: #888;
+  border: 1px solid #3a3a5a;
+  border-radius: 6px;
+  padding: 5px 14px;
+  font-size: 11px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.15s;
+}
+
+#reset-records-btn:hover {
+  color: #e57373;
+  border-color: #e57373;
+}
+
+/* ---- Entrada de nombre ---- */
+.name-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.name-entry.hidden {
+  display: none;
+}
+
+.name-entry-msg {
+  font-size: 13px;
+  color: #ffd54f;
+}
+
+#name-input {
+  background: #1a1a25;
+  border: 1px solid #3a3a5a;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #e0e0e0;
+  font-size: 14px;
+  font-family: 'Courier New', Courier, monospace;
+  text-align: center;
+  width: 180px;
+}
+
+#name-input:focus {
+  outline: none;
+  border-color: #7aa2f7;
+}
+
+#save-score-btn {
+  background: #ffd54f;
+  color: #0f0f17;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 22px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: background 0.15s;
+}
+
+#save-score-btn:hover {
+  background: #ffe082;
+}
