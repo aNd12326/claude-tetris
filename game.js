@@ -4,16 +4,70 @@ const COLS = 10;
 const ROWS = 20;
 const BLOCK = 30;
 
-const COLORS = [
-  null,
-  '#4dd0e1', // I - cyan
-  '#ffd54f', // O - yellow
-  '#ba68c8', // T - purple
-  '#81c784', // S - green
-  '#e57373', // Z - red
-  '#7986cb', // J - indigo
-  '#ffb74d', // L - orange
-];
+const THEMES = {
+  retro: {
+    style: 'flat',
+    background: '#1a1a25',
+    grid: '#22222e',
+    colors: [
+      null,
+      '#4dd0e1', // I - cyan
+      '#ffd54f', // O - yellow
+      '#ba68c8', // T - purple
+      '#81c784', // S - green
+      '#e57373', // Z - red
+      '#7986cb', // J - indigo
+      '#ffb74d', // L - orange
+    ],
+  },
+  neon: {
+    style: 'glow',
+    background: '#000000',
+    grid: '#101820',
+    colors: [
+      null,
+      '#00f0ff', // I
+      '#ffe600', // O
+      '#d600ff', // T
+      '#00ff66', // S
+      '#ff1744', // Z
+      '#3d5afe', // J
+      '#ff9100', // L
+    ],
+  },
+  pastel: {
+    style: 'rounded',
+    background: '#2b2b38',
+    grid: '#34343f',
+    colors: [
+      null,
+      '#a8e6f0', // I
+      '#fdf3b0', // O
+      '#e3c4f2', // T
+      '#bfe9c4', // S
+      '#f6bdbd', // Z
+      '#bcc6f0', // J
+      '#f8d6ad', // L
+    ],
+  },
+  pixel: {
+    style: 'textured',
+    background: '#181820',
+    grid: '#26262e',
+    colors: [
+      null,
+      '#39c5cf', // I
+      '#e6c029', // O
+      '#a64fc0', // T
+      '#5fb86a', // S
+      '#d35454', // Z
+      '#5b6dc0', // J
+      '#dc9b3c', // L
+    ],
+  },
+};
+
+let currentTheme = THEMES.retro;
 
 const PIECES = [
   null,
@@ -39,6 +93,7 @@ const overlay = document.getElementById('overlay');
 const overlayTitle = document.getElementById('overlay-title');
 const overlayScore = document.getElementById('overlay-score');
 const restartBtn = document.getElementById('restart-btn');
+const skinSelect = document.getElementById('skin-select');
 
 let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId;
 
@@ -158,18 +213,78 @@ function updateHUD() {
 
 function drawBlock(context, x, y, colorIndex, size, alpha) {
   if (!colorIndex) return;
-  const color = COLORS[colorIndex];
+  const color = currentTheme.colors[colorIndex];
+  const px = x * size;
+  const py = y * size;
   context.globalAlpha = alpha ?? 1;
-  context.fillStyle = color;
-  context.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
-  // highlight
-  context.fillStyle = 'rgba(255,255,255,0.12)';
-  context.fillRect(x * size + 1, y * size + 1, size - 2, 4);
+
+  switch (currentTheme.style) {
+    case 'glow': {
+      context.shadowColor = color;
+      context.shadowBlur = 14;
+      context.fillStyle = color;
+      context.fillRect(px + 1, py + 1, size - 2, size - 2);
+      context.shadowBlur = 0;
+      // inner darker core so the glow reads as an outline
+      context.fillStyle = 'rgba(0,0,0,0.45)';
+      context.fillRect(px + 4, py + 4, size - 8, size - 8);
+      break;
+    }
+    case 'rounded': {
+      const pad = 2;
+      const radius = Math.max(4, size * 0.22);
+      context.fillStyle = color;
+      context.beginPath();
+      if (typeof context.roundRect === 'function') {
+        context.roundRect(px + pad, py + pad, size - pad * 2, size - pad * 2, radius);
+      } else {
+        // fallback: plain rect with slightly larger padding
+        context.rect(px + pad + 1, py + pad + 1, size - pad * 2 - 2, size - pad * 2 - 2);
+      }
+      context.fill();
+      // soft highlight
+      context.fillStyle = 'rgba(255,255,255,0.25)';
+      context.beginPath();
+      if (typeof context.roundRect === 'function') {
+        context.roundRect(px + pad + 2, py + pad + 2, size - pad * 2 - 4, (size - pad * 2) * 0.35, radius * 0.6);
+      } else {
+        context.rect(px + pad + 3, py + pad + 3, size - pad * 2 - 6, (size - pad * 2) * 0.3);
+      }
+      context.fill();
+      break;
+    }
+    case 'textured': {
+      context.fillStyle = color;
+      context.fillRect(px + 1, py + 1, size - 2, size - 2);
+      // checker/dither pattern overlay
+      const cell = Math.max(3, Math.floor(size / 6));
+      context.fillStyle = 'rgba(255,255,255,0.18)';
+      for (let gy = 0; gy < size; gy += cell * 2) {
+        for (let gx = 0; gx < size; gx += cell * 2) {
+          context.fillRect(px + gx + 1, py + gy + 1, cell, cell);
+        }
+      }
+      context.fillStyle = 'rgba(0,0,0,0.22)';
+      for (let gy = cell; gy < size; gy += cell * 2) {
+        for (let gx = cell; gx < size; gx += cell * 2) {
+          context.fillRect(px + gx + 1, py + gy + 1, cell, cell);
+        }
+      }
+      break;
+    }
+    default: { // flat (retro)
+      context.fillStyle = color;
+      context.fillRect(px + 1, py + 1, size - 2, size - 2);
+      context.fillStyle = 'rgba(255,255,255,0.12)';
+      context.fillRect(px + 1, py + 1, size - 2, 4);
+    }
+  }
+
   context.globalAlpha = 1;
 }
 
 function drawGrid() {
-  ctx.strokeStyle = '#22222e';
+  ctx.strokeStyle = currentTheme.grid;
   ctx.lineWidth = 0.5;
   for (let c = 1; c < COLS; c++) {
     ctx.beginPath();
@@ -187,6 +302,8 @@ function drawGrid() {
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = currentTheme.background;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
   drawGrid();
 
   // board
@@ -210,6 +327,8 @@ function draw() {
 function drawNext() {
   const NB = 30;
   nextCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
+  nextCtx.fillStyle = currentTheme.background;
+  nextCtx.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
   const shape = next.shape;
   const offX = Math.floor((4 - shape[0].length) / 2);
   const offY = Math.floor((4 - shape.length) / 2);
@@ -301,4 +420,33 @@ document.addEventListener('keydown', e => {
 
 restartBtn.addEventListener('click', init);
 
+const SKIN_KEY = 'tetris-skin';
+
+function applySkin(name, persist) {
+  if (!THEMES[name]) name = 'retro';
+  currentTheme = THEMES[name];
+  canvas.style.background = currentTheme.background;
+  nextCanvas.style.background = currentTheme.background;
+  if (skinSelect) skinSelect.value = name;
+  if (persist) {
+    try { localStorage.setItem(SKIN_KEY, name); } catch (e) { /* ignore */ }
+  }
+  // re-render immediately without reloading
+  if (board && current && next) {
+    draw();
+    drawNext();
+  }
+}
+
+function loadSkin() {
+  let saved = 'retro';
+  try { saved = localStorage.getItem(SKIN_KEY) || 'retro'; } catch (e) { /* ignore */ }
+  applySkin(saved, false);
+}
+
+if (skinSelect) {
+  skinSelect.addEventListener('change', () => applySkin(skinSelect.value, true));
+}
+
+loadSkin();
 init();

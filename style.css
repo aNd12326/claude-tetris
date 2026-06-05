@@ -70,6 +70,34 @@ body {
   border-radius: 4px;
 }
 
+/* ---- Skin selector ---- */
+.skin-select {
+  background: #1a1a25;
+  color: #e0e0e0;
+  border: 1px solid #3a3a5a;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.skin-select:hover {
+  border-color: #7aa2f7;
+}
+
+.skin-select:focus {
+  border-color: #7aa2f7;
+  box-shadow: 0 0 0 2px rgba(122, 162, 247, 0.3);
+}
+
+.skin-select option {
+  background: #1a1a25;
+  color: #e0e0e0;
+}
+
 /* ---- Controles ---- */
 .controls ul {
   list-style: none;
